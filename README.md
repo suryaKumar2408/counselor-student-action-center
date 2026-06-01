@@ -212,6 +212,28 @@ http://localhost:5173
 
 ---
 
+### 4. Running Tests
+
+#### Backend Tests (Jest + Supertest)
+
+```bash
+cd backend
+npm test
+```
+
+Runs 7 integration tests covering all API endpoints, error cases, and request ID middleware.
+
+#### Frontend Tests (Vitest + React Testing Library)
+
+```bash
+cd frontend
+npm test
+```
+
+Runs 5 component tests verifying the SummaryCards rendering, labels, and urgency-level styling.
+
+---
+
 ## ✨ Features
 
 * Student profile summary
@@ -222,6 +244,48 @@ http://localhost:5173
 * Student switching
 * Responsive UI
 * Type-safe API integration
+
+---
+
+## 🔍 Technical Decisions
+
+### Request Logging
+
+Every incoming request is logged on response completion using `res.on('finish')`. Log format:
+
+```
+[2026-06-01T18:39:09.799Z] GET /students 200 (req-id: 1400abdb-81b0-455a-8682-25863b2beaaf)
+```
+
+**Why `console.log`?** The project already uses `console` throughout. Adding a logging library (Winston, Pino) would introduce unnecessary dependency overhead for a mock-data application. If the project scales to a real database, swapping to a structured logger is a one-line change since the middleware is isolated.
+
+### Request IDs
+
+A UUID v4 is generated per request via `crypto.randomUUID()` (built-in, zero dependencies). The ID is:
+- Set as the `X-Request-Id` response header for client-side correlation.
+- Included in all error response bodies (`requestId` field).
+- Logged alongside every request and error for traceability.
+
+**Tradeoff:** If a client sends an `x-request-id` header, it is reused instead of generating a new one. This supports distributed tracing across services but assumes trusted clients. For untrusted environments, the middleware can be changed to always generate a new ID.
+
+### Testing Approach
+
+| Layer | Tool | Why |
+|-------|------|-----|
+| Backend | Jest + Supertest | Industry standard for Express integration testing. Supertest sends real HTTP requests against the Express app without starting a server. |
+| Frontend | Vitest + React Testing Library | Vitest is Vite-native (zero extra config), shares the same transform pipeline. Testing Library encourages testing user-visible behavior over implementation details. |
+
+**What's tested:**
+- **Backend:** All 3 API endpoints (happy + error paths), request ID header presence, and request ID in error bodies.
+- **Frontend:** SummaryCards component — a pure presentational component tested with different data inputs and urgency-level styling assertions.
+
+**Why SummaryCards?** It's the best candidate for a first test: pure props-in/render-out with no API calls or side effects, and it has conditional styling logic (urgency levels) worth verifying.
+
+### Performance Considerations
+
+- **Logging middleware** uses `res.on('finish')` instead of `res.on('close')` — `finish` fires when the response is fully written but before the socket closes, avoiding timing issues.
+- **Request ID generation** uses Node's built-in `crypto.randomUUID()` which is backed by OpenSSL and is fast enough for per-request usage (~0.01ms per call).
+- **No runtime dependencies added** — all new packages (`jest`, `supertest`, `vitest`, `@testing-library/*`) are dev-only.
 
 ---
 
