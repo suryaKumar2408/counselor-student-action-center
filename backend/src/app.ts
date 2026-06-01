@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import studentRoutes from './routes/student.routes';
 import taskRoutes from './routes/task.routes';
 import { errorHandler } from './middlewares/error.middleware';
+import { requestIdMiddleware } from './middlewares/requestId.middleware';
+import { requestLogger } from './middlewares/requestLogger.middleware';
 import { NotFoundError } from './utils/errors';
 
 // Load environment variables
@@ -14,6 +16,8 @@ const app: Express = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(requestIdMiddleware);
+app.use(requestLogger);
 
 // Routes
 app.use('/students', studentRoutes);
