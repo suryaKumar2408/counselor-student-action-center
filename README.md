@@ -223,6 +223,31 @@ npm test
 
 Runs 7 integration tests covering all API endpoints, error cases, and request ID middleware.
 
+<details>
+<summary>✅ Backend test output (click to expand)</summary>
+
+```
+PASS tests/api.test.ts
+  Student API
+    ✓ GET /students — returns list of all students (160 ms)
+    ✓ GET /students/:id/action-center — returns full action center for valid student (24 ms)
+    ✓ GET /students/:id/action-center — returns 404 for non-existent student (19 ms)
+  Task API
+    ✓ PATCH /tasks/:taskId/status — updates task status successfully (49 ms)
+    ✓ PATCH /tasks/:taskId/status — returns 400 for invalid status (21 ms)
+  Request ID Middleware
+    ✓ every response includes an X-Request-Id header (15 ms)
+    ✓ error responses include requestId in body (16 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        4.088 s
+Ran all test suites.
+```
+
+</details>
+
 #### Frontend Tests (Vitest + React Testing Library)
 
 ```bash
@@ -231,6 +256,37 @@ npm test
 ```
 
 Runs 5 component tests verifying the SummaryCards rendering, labels, and urgency-level styling.
+
+<details>
+<summary>✅ Frontend test output (click to expand)</summary>
+
+```
+ ✓ src/components/SummaryCards.test.tsx (5 tests) 121ms
+   ✓ SummaryCards (5)
+     ✓ renders all four summary values 71ms
+     ✓ renders correct labels for each card 14ms
+     ✓ applies rose/red styling for urgent urgency level 9ms
+     ✓ applies emerald/green styling for low urgency level 10ms
+     ✓ renders different values when summary changes 13ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Duration  1.69s
+```
+
+</details>
+
+---
+
+## 🧪 Test Results
+
+### Backend Tests (Jest + Supertest) — 7/7 Passed
+
+![Backend Test Results](docs/test-results/backend-tests.png)
+
+### Frontend Tests (Vitest + React Testing Library) — 5/5 Passed
+
+![Frontend Test Results](docs/test-results/frontend-tests.png)
 
 ---
 
